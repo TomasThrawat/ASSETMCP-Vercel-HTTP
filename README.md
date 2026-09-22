@@ -1,19 +1,11 @@
-# ASSETMCP on Vercel
+# ASSETMCP HTTP on Vercel
 
-This repository exposes the upstream [ASSETMCP](https://github.com/evonar543/ASSETMCP) server as a stateless Streamable HTTP MCP endpoint on Vercel.
+HTTP wrapper around the upstream ASSETMCP server by evonar543.
 
-## Endpoint
+MCP endpoint:
 
-After deployment:
+https://assetmcp-vercel-http.vercel.app/api/mcp
 
-`https://<your-vercel-domain>/api/mcp`
+The endpoint uses Streamable HTTP in stateless JSON mode. Vercel routes /api/* to api/index.py, so the MCP transport is explicitly mounted at /api/mcp.
 
-## Source
-
-The MCP implementation is installed directly from the upstream ASSETMCP repository. This wrapper does not fork or modify the upstream tool implementation.
-
-## Important runtime behavior
-
-Vercel's function filesystem is ephemeral, so downloaded assets and generated previews are stored under `/tmp`. They should not be treated as persistent storage.
-
-The endpoint uses stateless Streamable HTTP with JSON responses because that mode is appropriate for serverless environments.
+Runtime asset files are stored in /tmp because Vercel's function filesystem is ephemeral.
