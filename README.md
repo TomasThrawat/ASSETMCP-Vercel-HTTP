@@ -6,6 +6,10 @@ MCP endpoint:
 
 https://assetmcp-vercel-http.vercel.app/api/mcp
 
-The endpoint uses Streamable HTTP in stateless JSON mode. Vercel routes /api/* to api/index.py, so the MCP transport is explicitly mounted at /api/mcp.
+Health check:
 
-Runtime asset files are stored in /tmp because Vercel's function filesystem is ephemeral.
+https://assetmcp-vercel-http.vercel.app/api/health
+
+The wrapper uses Streamable HTTP in stateless JSON mode, with the MCP session manager started by the top-level ASGI lifespan for Vercel compatibility.
+
+Runtime asset files are stored under /tmp because Vercel's function filesystem is ephemeral.

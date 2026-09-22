@@ -1,2 +1,2 @@
 assetmcp @ git+https://github.com/evonar543/ASSETMCP.git@main
-mcp>=1.28.0,<2
+mcp==1.30.0
