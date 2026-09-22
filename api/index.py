@@ -1,9 +1,7 @@
 import os
-from contextlib import asynccontextmanager
 
-from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Mount, Route
 
 # Vercel Functions have an ephemeral writable filesystem.
 os.environ.setdefault("ASSETMCP_LIBRARY_DIR", "/tmp/assetmcp-assets")
@@ -15,37 +13,23 @@ from assetmcp.server import mcp, _ensure_roots
 _ensure_roots()
 
 _vercel_host = os.environ.get("VERCEL_URL", "assetmcp-vercel-http.vercel.app")
-_allowed_hosts = [
-    _vercel_host,
-    f"{_vercel_host}:*",
-]
-
-mcp_app = mcp.streamable_http_app(
-    streamable_http_path="/api/mcp",
-    stateless_http=True,
-    json_response=True,
-    transport_security=TransportSecuritySettings(
-        allowed_hosts=_allowed_hosts,
-    ),
+mcp.settings.streamable_http_path = "/api/mcp"
+mcp.settings.stateless_http = True
+mcp.settings.json_response = True
+mcp.settings.transport_security = TransportSecuritySettings(
+    allowed_hosts=[
+        _vercel_host,
+        f"{_vercel_host}:*",
+    ]
 )
 
 
-@asynccontextmanager
-async def lifespan(_app: Starlette):
-    # Mounting an MCP ASGI app disables its own lifespan. Start the
-    # session manager from the top-level app instead.
-    async with mcp.session_manager.run():
-        yield
-
-
-async def health(_request):
+@mcp.custom_route("/api/health", methods=["GET"])
+async def health(_request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok", "server": "ASSETMCP"})
 
 
-app = Starlette(
-    routes=[
-        Route("/api/health", health, methods=["GET"]),
-        Mount("/", app=mcp_app),
-    ],
-    lifespan=lifespan,
-)
+# MCP 1.30.0 reads Streamable HTTP options from FastMCP.settings.
+# Its generated Starlette app also owns the session-manager lifespan,
+# so export it directly instead of mounting a second ASGI application.
+app = mcp.streamable_http_app()
