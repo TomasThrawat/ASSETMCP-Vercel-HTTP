@@ -1,2 +1,2 @@
-git+https://github.com/evonar543/ASSETMCP.git@main
+assetmcp @ git+https://github.com/evonar543/ASSETMCP.git@main
 mcp>=1.28.0,<2
